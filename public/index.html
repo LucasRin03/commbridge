@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommBridge — Communication Practice Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,600;0,800;1,300&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #02405E;
+    --teal: #028090;
+    --mint: #02C39A;
+    --orange: #F47B20;
+    --white: #FFFFFF;
+    --off-white: #F0F9FF;
+    --gray: #64748B;
+    --dark-text: #1E293B;
+    --card-bg: #FFFFFF;
+    --border: #E2EBF0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--dark-text); min-height: 100vh; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; color: var(--mint); letter-spacing: -0.5px; }
+  .logo span { color: var(--white); }
+  .header-right { display: flex; gap: 1rem; align-items: center; }
+  .badge { background: var(--teal); color: var(--white); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+  .back-btn { background: none; border: 1.5px solid rgba(255,255,255,0.3); color: var(--white); padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .back-btn:hover { background: rgba(255,255,255,0.1); }
+
+  /* ── LANDING ── */
+  #screen-home { background: var(--navy); }
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  .hero-tag { font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--mint); font-weight: 600; margin-bottom: 1.5rem; }
+  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(3rem, 8vw, 5.5rem); color: var(--white); line-height: 0.95; margin-bottom: 1rem; }
+  .hero h1 .accent { color: var(--mint); }
+  .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.65); max-width: 520px; line-height: 1.7; margin-bottom: 2.5rem; }
+  .role-cards { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .role-card {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    width: 190px;
+    text-align: center;
+  }
+  .role-card:hover { background: rgba(2,192,154,0.15); border-color: var(--mint); transform: translateY(-3px); }
+  .role-card .icon { font-size: 2.2rem; margin-bottom: 0.7rem; }
+  .role-card h3 { color: var(--white); font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .role-card p { color: rgba(255,255,255,0.5); font-size: 0.8rem; line-height: 1.4; }
+  .demo-note { margin-top: 2rem; font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+
+  /* ── DASHBOARD ── */
+  #screen-dashboard .content { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+  .welcome-banner {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--navy) 100%);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    color: var(--white);
+    margin-bottom: 1.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::after { content: 'CB'; font-family: 'Syne', sans-serif; font-size: 8rem; font-weight: 800; color: rgba(255,255,255,0.05); position: absolute; right: 1rem; top: -1rem; }
+  .welcome-banner h2 { font-size: 1.5rem; margin-bottom: 0.3rem; }
+  .welcome-banner p { opacity: 0.75; font-size: 0.9rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.8rem; }
+  .stat-card { background: var(--white); border-radius: 16px; padding: 1.3rem 1.5rem; border: 1.5px solid var(--border); }
+  .stat-card .num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--teal); }
+  .stat-card .label { font-size: 0.82rem; color: var(--gray); margin-top: 0.2rem; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.8rem; }
+  .scenario-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.2rem;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .scenario-card:hover { border-color: var(--teal); box-shadow: 0 4px 20px rgba(2,128,144,0.12); transform: translateY(-2px); }
+  .scenario-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+  .scenario-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
+  .scenario-card p { font-size: 0.8rem; color: var(--gray); line-height: 1.4; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; margin-top: 0.4rem; }
+  .pill-green { background: #D1FAE5; color: #065F46; }
+  .pill-blue { background: #DBEAFE; color: #1E40AF; }
+  .pill-orange { background: #FEF3C7; color: #92400E; }
+
+  /* ── SCENARIO LOBBY ── */
+  #screen-scenario .content { flex: 1; padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+  .scenario-header { background: var(--white); border-radius: 20px; padding: 2rem; border: 1.5px solid var(--border); margin-bottom: 1.5rem; }
+  .big-icon { font-size: 3.5rem; margin-bottom: 0.8rem; }
+  .scenario-header h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: var(--navy); margin-bottom: 0.5rem; }
+  .scenario-header p { color: var(--gray); font-size: 1rem; line-height: 1.6; }
+  .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .mode-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-card:hover { border-color: var(--mint); box-shadow: 0 4px 20px rgba(2,195,154,0.15); }
+  .mode-card h4 { font-size: 1rem; color: var(--navy); font-weight: 700; margin-bottom: 0.4rem; }
+  .mode-card p { font-size: 0.83rem; color: var(--gray); line-height: 1.5; }
+  .start-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--teal);
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .start-btn:hover { background: var(--navy); transform: translateY(-1px); }
+
+  /* ── PRACTICE ROOM ── */
+  #screen-practice { background: #F8FAFC; }
+  #screen-practice .content { flex: 1; display: flex; gap: 1rem; padding: 1rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+  .chat-panel { flex: 1; background: var(--white); border-radius: 20px; border: 1.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .chat-header { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .chat-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); }
+  .participants { display: flex; gap: 0.4rem; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--white); }
+  .messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.7rem; }
+  .msg { max-width: 75%; padding: 0.7rem 1rem; border-radius: 16px; font-size: 0.9rem; line-height: 1.5; }
+  .msg.them { background: var(--off-white); color: var(--dark-text); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .msg.me { background: var(--teal); color: var(--white); border-bottom-right-radius: 4px; align-self: flex-end; }
+  .msg.system { background: #FFF7ED; color: var(--orange); border: 1px solid #FED7AA; font-size: 0.82rem; align-self: center; border-radius: 10px; text-align: center; max-width: 90%; }
+  .msg-sender { font-size: 0.7rem; color: var(--gray); margin-bottom: 0.2rem; }
+  .aac-panel { width: 310px; background: var(--white); border-radius: 20px; border: 1.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .aac-header { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); background: var(--navy); }
+  .aac-header h4 { color: var(--white); font-size: 0.85rem; font-weight: 700; }
+  .aac-header p { color: rgba(255,255,255,0.55); font-size: 0.75rem; }
+  .aac-compose { padding: 0.7rem; background: var(--off-white); border-bottom: 1px solid var(--border); min-height: 50px; font-size: 0.85rem; color: var(--dark-text); display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+  .composed-word { background: var(--teal); color: var(--white); padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; }
+  .aac-grid { flex: 1; padding: 0.7rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; overflow-y: auto; }
+  .sym-btn {
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem 0.3rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sym-btn:hover { background: var(--mint); border-color: var(--mint); color: var(--white); }
+  .sym-btn .sym-icon { font-size: 1.4rem; display: block; margin-bottom: 0.2rem; }
+  .sym-btn .sym-word { font-size: 0.68rem; font-weight: 600; color: var(--dark-text); display: block; }
+  .sym-btn:hover .sym-word { color: var(--white); }
+  .aac-footer { padding: 0.7rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+  .aac-send { flex: 1; padding: 0.6rem; background: var(--teal); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; transition: all 0.2s; }
+  .aac-send:hover { background: var(--navy); }
+  .aac-clear { padding: 0.6rem 0.8rem; background: #FEE2E2; color: #DC2626; border: none; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; }
+  .context-bar { background: #FFF7ED; border-top: 1px solid #FED7AA; padding: 0.7rem 1rem; font-size: 0.8rem; color: var(--orange); display: flex; align-items: center; gap: 0.5rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .fade-up { animation: fadeUp 0.4s ease forwards; }
+  @keyframes popIn { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .pop-in { animation: popIn 0.3s ease forwards; }
+
+  /* Responsive */
+  @media(max-width:700px) {
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    #screen-practice .content { flex-direction: column; }
+    .aac-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ SCREEN: HOME ══ -->
+<div id="screen-home" class="screen active">
+  <div class="hero fade-up">
+    <div class="hero-tag">SPD SATC × NUS Project</div>
+    <h1>Comm<span class="accent">Bridge</span></h1>
+    <p>Practice real-world communication skills online — with peers, therapists, and caregivers — safely and confidently.</p>
+    <div class="role-cards">
+      <div class="role-card" onclick="goTo('dashboard', 'AAC User')">
+        <div class="icon">🧑‍💻</div>
+        <h3>I'm an AAC User</h3>
+        <p>Practise & connect with others</p>
+      </div>
+      <div class="role-card" onclick="goTo('dashboard', 'Therapist')">
+        <div class="icon">👩‍⚕️</div>
+        <h3>I'm a Therapist</h3>
+        <p>Host and guide sessions</p>
+      </div>
+      <div class="role-card" onclick="goTo('dashboard', 'Caregiver')">
+        <div class="icon">👨‍👧</div>
+        <h3>I'm a Caregiver</h3>
+        <p>Support practice at home</p>
+      </div>
+    </div>
+    <div class="demo-note">⬆ Click any role to explore the prototype demo</div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: DASHBOARD ══ -->
+<div id="screen-dashboard" class="screen">
+  <div class="header">
+    <div class="logo">Comm<span>Bridge</span></div>
+    <div class="header-right">
+      <span class="badge" id="role-badge">AAC User</span>
+      <button class="back-btn" onclick="goTo('home')">← Exit</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="welcome-banner fade-up">
+      <h2>Welcome back! 👋</h2>
+      <p>Ready to practise? Choose a scenario below or join an active session.</p>
+    </div>
+    <div class="grid-3 fade-up">
+      <div class="stat-card">
+        <div class="num">12</div>
+        <div class="label">Sessions completed this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">4</div>
+        <div class="label">Scenarios unlocked</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">🔥 5</div>
+        <div class="label">Day practice streak</div>
+      </div>
+    </div>
+    <div class="section-title fade-up">Choose a Scenario to Practise</div>
+    <div class="grid-2 fade-up">
+      <div class="scenario-card" onclick="goTo('scenario','hawker')">
+        <div class="scenario-icon" style="background:#FFF7ED">🍜</div>
+        <div>
+          <h4>Ordering Food</h4>
+          <p>Navigate a hawker centre or restaurant. Ask for items, quantities, and payment.</p>
+          <span class="pill pill-green">Beginner friendly</span>
+        </div>
+      </div>
+      <div class="scenario-card" onclick="goTo('scenario','shop')">
+        <div class="scenario-icon" style="background:#EFF6FF">🛒</div>
+        <div>
+          <h4>Grocery Shopping</h4>
+          <p>Find items, ask for help, and complete a shopping trip.</p>
+          <span class="pill pill-blue">Intermediate</span>
+        </div>
+      </div>
+      <div class="scenario-card" onclick="goTo('scenario','transport')">
+        <div class="scenario-icon" style="background:#F0FDF4">🚌</div>
+        <div>
+          <h4>Public Transport</h4>
+          <p>Ask for directions and navigate bus or MRT journeys.</p>
+          <span class="pill pill-blue">Intermediate</span>
+        </div>
+      </div>
+      <div class="scenario-card" onclick="goTo('scenario','clinic')">
+        <div class="scenario-icon" style="background:#FDF4FF">🏥</div>
+        <div>
+          <h4>Clinic Visit</h4>
+          <p>Describe symptoms and communicate with healthcare staff.</p>
+          <span class="pill pill-orange">Advanced</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-title fade-up">Live Sessions</div>
+    <div class="scenario-card fade-up" style="margin-bottom:1rem; background: linear-gradient(135deg, #F0FDF4, #ECFDF5); border-color: #A7F3D0;">
+      <div class="scenario-icon" style="background:#D1FAE5">👥</div>
+      <div>
+        <h4 style="color:var(--teal)">Open Session with Therapist Alvina</h4>
+        <p>Hawker centre role-play • 2 participants • Started 5 mins ago</p>
+        <span class="pill pill-green">Join Now →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: SCENARIO ══ -->
+<div id="screen-scenario" class="screen">
+  <div class="header">
+    <div class="logo">Comm<span>Bridge</span></div>
+    <div class="header-right">
+      <button class="back-btn" onclick="goTo('dashboard')">← Dashboard</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="scenario-header fade-up">
+      <div class="big-icon" id="scene-icon">🍜</div>
+      <h2 id="scene-title">Ordering Food</h2>
+      <p id="scene-desc">You're at a hawker centre. Practise ordering your favourite dish, asking about prices, and making payment — all using your AAC device.</p>
+    </div>
+    <div class="section-title fade-up">How would you like to practise?</div>
+    <div class="mode-grid fade-up">
+      <div class="mode-card" onclick="goTo('practice')">
+        <h4>🤝 With a Peer</h4>
+        <p>Connect with another AAC user to practise the scenario together. Take turns as customer and staff.</p>
+      </div>
+      <div class="mode-card" onclick="goTo('practice')">
+        <h4>👩‍⚕️ With a Therapist</h4>
+        <p>Join a guided session where your therapist observes, supports, and gives feedback in real-time.</p>
+      </div>
+      <div class="mode-card" onclick="goTo('practice')">
+        <h4>🤖 Solo Practice</h4>
+        <p>Practise with an AI conversation partner. No pressure — replay anytime you like.</p>
+      </div>
+      <div class="mode-card" onclick="goTo('practice')">
+        <h4>👨‍👧 With Caregiver</h4>
+        <p>Invite a family member or support worker to join your session from home.</p>
+      </div>
+    </div>
+    <button class="start-btn fade-up" onclick="goTo('practice')">▶ Start Practice Session</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: PRACTICE ROOM ══ -->
+<div id="screen-practice" class="screen">
+  <div class="header">
+    <div class="logo">Comm<span>Bridge</span></div>
+    <div class="header-right">
+      <div class="participants">
+        <div class="avatar" style="background:var(--teal)">Me</div>
+        <div class="avatar" style="background:var(--orange)">Al</div>
+        <div class="avatar" style="background:var(--navy)">PT</div>
+      </div>
+      <button class="back-btn" onclick="goTo('scenario','hawker')">← Exit Room</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="chat-panel">
+      <div class="chat-header">
+        <h3>🍜 Hawker Centre — Practice Room</h3>
+        <span style="font-size:0.78rem; color:var(--gray)">3 participants • Live</span>
+      </div>
+      <div class="messages" id="messages">
+        <div class="msg system">📍 Scenario: You're at a hawker stall. Ask the stall owner what they have today.</div>
+        <div>
+          <div class="msg-sender">Alex (Peer)</div>
+          <div class="msg them">👋 Hello! I am here. Ready to practise?</div>
+        </div>
+        <div>
+          <div class="msg-sender">Therapist Alvina</div>
+          <div class="msg them" style="background:#FFF7ED; color:#92400E;">💬 Great! Alex, you're the customer. Try ordering something to eat.</div>
+        </div>
+      </div>
+      <div class="context-bar">
+        <span>💡</span> <span>Tip: Tap symbols on the right to build your message, then press Send.</span>
+      </div>
+    </div>
+    <div class="aac-panel">
+      <div class="aac-header">
+        <h4>AAC Board</h4>
+        <p>Tap to build your message</p>
+      </div>
+      <div class="aac-compose" id="compose-area">
+        <span style="color:var(--gray); font-size:0.8rem;">Your message appears here...</span>
+      </div>
+      <div class="aac-grid" id="aac-grid">
+        <!-- populated by JS -->
+      </div>
+      <div class="aac-footer">
+        <button class="aac-clear" onclick="clearMsg()">✕ Clear</button>
+        <button class="aac-send" onclick="sendMsg()">Send ↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentRole = 'AAC User';
+let composedWords = [];
+
+const symbols = [
+  { icon: '👋', word: 'Hello' },
+  { icon: '😊', word: 'Please' },
+  { icon: '🙏', word: 'Thank you' },
+  { icon: '🍜', word: 'Noodles' },
+  { icon: '🍚', word: 'Rice' },
+  { icon: '🍗', word: 'Chicken' },
+  { icon: '💵', word: 'How much?' },
+  { icon: '1️⃣', word: 'One' },
+  { icon: '2️⃣', word: 'Two' },
+  { icon: '🛑', word: 'Stop' },
+  { icon: '✅', word: 'Yes' },
+  { icon: '❌', word: 'No' },
+  { icon: '🌶️', word: 'No spicy' },
+  { icon: '🥤', word: 'Drink' },
+  { icon: '🧾', word: 'Bill' },
+  { icon: '🆘', word: 'Help' },
+  { icon: '🔁', word: 'Repeat' },
+  { icon: '⏰', word: 'Wait' },
+];
+
+const scenarios = {
+  hawker: { icon: '🍜', title: 'Ordering Food', desc: "You're at a hawker centre. Practise ordering your favourite dish, asking about prices, and making payment — all using your AAC device." },
+  shop: { icon: '🛒', title: 'Grocery Shopping', desc: "You're at a supermarket. Find items on your list, ask a staff member for help, and check out at the counter." },
+  transport: { icon: '🚌', title: 'Public Transport', desc: "You need to take a bus to the community centre. Ask for help, buy a ticket, and navigate the journey." },
+  clinic: { icon: '🏥', title: 'Clinic Visit', desc: "You have an appointment at the clinic. Describe your symptoms, answer the doctor's questions, and ask about your medication." },
+};
+
+function buildAACGrid() {
+  const grid = document.getElementById('aac-grid');
+  grid.innerHTML = '';
+  symbols.forEach(sym => {
+    const btn = document.createElement('button');
+    btn.className = 'sym-btn';
+    btn.innerHTML = `<span class="sym-icon">${sym.icon}</span><span class="sym-word">${sym.word}</span>`;
+    btn.onclick = () => addWord(sym.word);
+    grid.appendChild(btn);
+  });
+}
+
+function addWord(word) {
+  composedWords.push(word);
+  updateCompose();
+}
+
+function updateCompose() {
+  const area = document.getElementById('compose-area');
+  if (composedWords.length === 0) {
+    area.innerHTML = '<span style="color:var(--gray); font-size:0.8rem;">Your message appears here...</span>';
+  } else {
+    area.innerHTML = composedWords.map(w =>
+      `<span class="composed-word" onclick="removeWord('${w}')">${w}</span>`
+    ).join('');
+  }
+}
+
+function removeWord(word) {
+  const idx = composedWords.lastIndexOf(word);
+  if (idx !== -1) composedWords.splice(idx, 1);
+  updateCompose();
+}
+
+function clearMsg() {
+  composedWords = [];
+  updateCompose();
+}
+
+function sendMsg() {
+  if (composedWords.length === 0) return;
+  const text = composedWords.join(' · ');
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.innerHTML = `<div class="msg me pop-in">${text}</div>`;
+  div.style.alignSelf = 'flex-end';
+  div.style.display = 'flex';
+  div.style.justifyContent = 'flex-end';
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  composedWords = [];
+  updateCompose();
+
+  // Simulate response
+  setTimeout(() => {
+    const responses = [
+      "Great job! 🎉 Can you try asking for the price?",
+      "Well done! The stall owner understands you.",
+      "That's correct! Now try ordering a drink too.",
+      "Excellent communication! 👏 Keep going!",
+    ];
+    const r = responses[Math.floor(Math.random() * responses.length)];
+    const rdiv = document.createElement('div');
+    rdiv.innerHTML = `<div class="msg-sender">Therapist Alvina</div><div class="msg them pop-in" style="background:#FFF7ED; color:#92400E;">💬 ${r}</div>`;
+    messages.appendChild(rdiv);
+    messages.scrollTop = messages.scrollHeight;
+  }, 1400);
+}
+
+function goTo(screen, param) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${screen}`).classList.add('active');
+
+  if (screen === 'dashboard' && param) {
+    currentRole = param;
+    document.getElementById('role-badge').textContent = param;
+  }
+  if (screen === 'scenario' && param && scenarios[param]) {
+    const sc = scenarios[param];
+    document.getElementById('scene-icon').textContent = sc.icon;
+    document.getElementById('scene-title').textContent = sc.title;
+    document.getElementById('scene-desc').textContent = sc.desc;
+  }
+  if (screen === 'practice') {
+    buildAACGrid();
+  }
+  window.scrollTo(0, 0);
+}
+
+buildAACGrid();
+</script>
+</body>
+</html>
